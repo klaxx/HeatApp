@@ -1,4 +1,7 @@
-﻿@model IEnumerable<HeatApp.Models.ValveView>
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+
+@model IEnumerable<HeatApp.Models.ValveView>
 
 @{
     ViewData["Title"] = "Seznam ventilů";
@@ -21,9 +24,12 @@
                             <th>
                                 Název
                             </th>
-                            <th>
-                                Řízení kotle
-                            </th>
+                            @if (Configuration.GetSection("BoilerUnit").GetValue<bool>("UseBoiler"))
+                            {
+                                <th>
+                                    Řízení kotle
+                                </th>
+                            }
                             <th>
                                 Rozvrh
                             </th>
@@ -67,9 +73,12 @@
                                 <td>
                                     <a asp-action="Edit" asp-route-id="@item.Addr">@item.Caption</a>
                                 </td>
-                                <td>
-                                    <input type="checkbox" asp-for="@item.BoilerEnabled" disabled="disabled">
-                                </td>
+                                @if (Configuration.GetSection("BoilerUnit").GetValue<bool>("UseBoiler"))
+                                {
+                                    <td>
+                                        <input type="checkbox" asp-for="@item.BoilerEnabled" disabled="disabled">
+                                    </td>
+                                }
                                 <td>
                                     @item.TimeTableCaption
                                 </td>

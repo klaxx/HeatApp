@@ -1,4 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
 
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
@@ -109,11 +111,14 @@
                             <i class="fa fa-hand-lizard-o"></i> <span>Ventily</span>
                         </a>
                     </li>
-                    <li>
-                        <a href="/Boiler">
-                            <i class="fa fa-fire"></i> <span>Kotel</span>
-                        </a>
-                    </li>
+                    @if (Configuration.GetSection("BoilerUnit").GetValue<bool>("UseBoiler"))
+                    {
+                        <li>
+                            <a href="/Boiler">
+                                <i class="fa fa-fire"></i> <span>Kotel</span>
+                            </a>
+                        </li>
+                    }
                     <li>
                         <a href="/TimeTables">
                             <i class="fa fa-calendar"></i> <span>Rozvrhy</span>

@@ -3,14 +3,16 @@ using System;
 using HeatApp.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HeatApp.Migrations
 {
     [DbContext(typeof(HeatAppContext))]
-    partial class HeatAppContextModelSnapshot : ModelSnapshot
+    [Migration("20191101133028_AddLocked")]
+    partial class AddLocked
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

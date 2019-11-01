@@ -13,6 +13,10 @@
     background-color: #f0ad4e;
 }
 
+.timetable-selector{
+    overflow:auto;
+}
+
 .timetable-rows td[data-disabled] {
     opacity: 0.55;
 }

@@ -94,14 +94,14 @@ namespace HeatApp.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Addr,Caption,BoilerEnabled,Temperature,TimeTable,Wanted,Auto")] ValveView valveView)
+        public async Task<IActionResult> Edit(int id, [Bind("Addr,Caption,BoilerEnabled,Temperature,TimeTable,Wanted,Auto,Locked")] ValveView valveView)
         {
             if (ModelState.IsValid && valveView.Addr > 0)
             {
                 var valve = await db.Valves.SingleOrDefaultAsync(v => v.Addr == valveView.Addr);
                 if (valve == null)
                 {
-                    valve = new Valve() { Addr = valveView.Addr, BoilerEnabled = valveView.BoilerEnabled, Caption = valveView.Caption, TimeTable = valveView.TimeTable };
+                    valve = new Valve() { Addr = valveView.Addr, BoilerEnabled = valveView.BoilerEnabled, Caption = valveView.Caption, TimeTable = valveView.TimeTable, Locked = valveView.Locked };
                     await db.Valves.AddAsync(valve);
                     await db.SaveChangesAsync();
                     commandService.SendTimetableToValve(valve.Addr, valve.TimeTable);
@@ -122,6 +122,11 @@ namespace HeatApp.Controllers
                     if (valve.BoilerEnabled != valveView.BoilerEnabled)
                     {
                         valve.BoilerEnabled = valveView.BoilerEnabled;
+                        change = true;
+                    }
+                    if (valve.Locked != valveView.Locked)
+                    {
+                        valve.Locked = valveView.Locked;
                         change = true;
                     }
                     if (change)
@@ -151,14 +156,11 @@ namespace HeatApp.Controllers
             {
                 return NotFound();
             }
-
-            var valve = await db.Valves
-                .FirstOrDefaultAsync(m => m.Addr == id);
+            var valve = await db.Valves.FirstOrDefaultAsync(m => m.Addr == id);
             if (valve == null)
             {
                 return NotFound();
             }
-
             return View(valve);
         }
 

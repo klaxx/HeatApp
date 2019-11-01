@@ -34,9 +34,13 @@ namespace HeatApp.Services
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            boilerTimer = new System.Timers.Timer(60000);
-            boilerTimer.Elapsed += BoilerTimer_Elapsed;
-            boilerTimer.AutoReset = true;
+            bool boilerUnit = this.configuration.GetSection("BoilerUnit").GetValue<bool>("UseBoiler");
+            if (boilerUnit)
+            {
+                boilerTimer = new System.Timers.Timer(60000);
+                boilerTimer.Elapsed += BoilerTimer_Elapsed;
+                boilerTimer.AutoReset = true;
+            }
 
             reconnectTimer = new System.Timers.Timer(30000);
             reconnectTimer.Elapsed += ReconnectTimer_Elapsed;
@@ -59,7 +63,10 @@ namespace HeatApp.Services
 
             client.UseDisconnectedHandler(e =>
             {
-                boilerTimer.Stop();
+                if (boilerUnit)
+                {
+                    boilerTimer.Stop();
+                }
                 reconnectTimer.Start();
             });
 
@@ -67,7 +74,10 @@ namespace HeatApp.Services
             {
                 //await client.SubscribeAsync("/heating/#");
                 reconnectTimer.Stop();
-                boilerTimer.Start();
+                if (boilerUnit)
+                {
+                    boilerTimer.Start();
+                }
             });
             //client.UseApplicationMessageReceivedHandler(e =>
             //{

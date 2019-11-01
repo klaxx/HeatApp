@@ -13,5 +13,6 @@ namespace HeatApp.Models
         public string Caption { get; set; }
         public bool BoilerEnabled { get; set; }
         public int TimeTable { get; set; }
+        public bool Locked { get; set; }
     }
 }

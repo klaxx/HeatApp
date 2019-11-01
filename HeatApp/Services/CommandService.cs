@@ -87,6 +87,10 @@ namespace HeatApp.Services
                 {
                     commands.Add("A" + Convert.ToInt32(valveView.Wanted * 2).ToString("x02"));
                 }
+                if (lastLog.Locked != valveView.Locked)
+                {
+                    commands.Add(valveView.Locked ? "L01" : "L00");
+                }
             }
             if (commands.Count > 0)
             {
@@ -180,6 +184,7 @@ namespace HeatApp.Services
                 db.SaveChanges();
             }
         }
+
 
         public Dictionary<string, MemoryRecord> GetMemoryLayout
         {
