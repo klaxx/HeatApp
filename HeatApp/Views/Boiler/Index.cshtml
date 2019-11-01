@@ -1,0 +1,39 @@
+﻿@model HeatApp.Models.Config
+@{
+    ViewData["Title"] = "Kotel";
+}
+
+@section Styles{
+    <link rel="stylesheet" href="~/css/funkyRadio.css" />
+}
+
+<section class="content">
+    <form asp-action="Index">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="ConfigID" />
+        <div class="col-md-4">
+            <div class="box box-info ">
+                <div class="box-header with-border">
+                    <h3 class="box-title">@ViewData["Title"]</h3>
+                </div>
+                <div class="box-body">
+                    <label class="control-label">Režim ventilu</label>
+                    <div class="funkyradio">
+                        <div class="funkyradio-default">
+                            <input type="radio" asp-for="ConfigValue" id="radio1" value="off" )>
+                            <label for="radio1">Řízení prostorovým termostatem</label>
+                        </div>
+                        <div class="funkyradio-success">
+                            <input type="radio" asp-for="ConfigValue" id="radio2" value="on" )>
+                            <label for="radio2">Řízení topným systémem</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="box-footer clearfix">
+                    <input type="submit" value="Uložit" class="btn btn-sm btn-warning btn-flat pull-left" />
+                </div>
+            </div>
+        </div>
+    </form>
+</section>
+

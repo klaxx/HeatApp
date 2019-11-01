@@ -1,0 +1,41 @@
+﻿.timetable-rows td[data-selected][data-temp=sleep],
+.timetable-rows td[data-selecting][data-temp=sleep] {
+    background-color: #5bc0de;
+}
+
+.timetable-rows td[data-selected][data-temp=eco],
+.timetable-rows td[data-selecting][data-temp=eco] {
+    background-color: #5cb85c;
+}
+
+.timetable-rows td[data-selected][data-temp=warm],
+.timetable-rows td[data-selecting][data-temp=warm] {
+    background-color: #f0ad4e;
+}
+
+.timetable-rows td[data-disabled] {
+    opacity: 0.55;
+}
+
+.textBoxTemp {
+    text-align: center;
+    max-width: 100px;
+}
+
+span.input-group-btn {
+    width: 15px;
+}
+
+.inline {
+    float: left;
+}
+
+.tempSel {
+    margin-bottom: 5px;
+}
+
+.wrapHei {
+    height: 37px;
+    display: table-cell;
+    vertical-align: middle;
+}

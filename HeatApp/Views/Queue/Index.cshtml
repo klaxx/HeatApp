@@ -1,0 +1,61 @@
+﻿@model IEnumerable<HeatApp.Models.Command>
+
+@{
+    ViewData["Title"] = "Fronta zpráv s nastavením";
+}
+
+<section class="content">
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h3 class="box-title">Fronta zpráv</h3>
+        </div>
+        <!-- /.box-header -->
+        <div class="box-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            Adresa
+                        </th>
+                        <th>
+                            Odesláno
+                        </th>
+                        <th>
+                            Čas
+                        </th>
+                        <th>
+                            Text zprávy
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Addr)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Sent)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Time)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Data)
+                            </td>
+                            <td>
+                                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="box-footer clearfix">
+            <a class="btn btn-sm btn-danger btn-flat pull-left" asp-action="ClearQueue">Vymazat frontu</a>
+            <a class="btn btn-sm btn-warning btn-flat pull-left" asp-action="Create">Zadat příkaz</a>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,118 @@
+﻿@model IEnumerable<HeatApp.Models.ValveView>
+
+@{
+    ViewData["Title"] = "Seznam ventilů";
+}
+
+<section class="content">
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h3 class="box-title">Seznam ventilů</h3>
+        </div>
+        <!-- /.box-header -->
+        <div class="box-body">
+            <div class="table-responsive">
+                <table class="table no-margin">
+                    <thead>
+                        <tr>
+                            <th>
+                                Adresa
+                            </th>
+                            <th>
+                                Název
+                            </th>
+                            <th>
+                                Řízení kotle
+                            </th>
+                            <th>
+                                Rozvrh
+                            </th>
+                            <th>
+                                Poslední hlášení
+                            </th>
+                            <th>
+                                Aktuální teplota
+                            </th>
+                            <th>
+                                Požadovaná teplota
+                            </th>
+                            <th>
+                                Řízeno rozvrhem
+                            </th>
+                            <th>
+                                Otevření
+                            </th>
+                            <th>
+                                Baterie
+                            </th>
+                            <th>
+                                Okno
+                            </th>
+                            <th>
+                                Uzamčeno
+                            </th>
+                            <th>
+                                Chyba
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @item.Addr
+                                </td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.Addr">@item.Caption</a>
+                                </td>
+                                <td>
+                                    <input type="checkbox" asp-for="@item.BoilerEnabled" disabled="disabled">
+                                </td>
+                                <td>
+                                    @item.TimeTableCaption
+                                </td>
+                                <td>
+                                    @item.Time
+                                </td>
+                                <td>
+                                    @item.Actual.ToString("F")°C
+                                </td>
+                                <td>
+                                    @item.Wanted.ToString("F1")°C
+                                </td>
+                                <td>
+                                    <input type="checkbox" asp-for="@item.Auto" disabled="disabled">
+                                </td>
+                                <td>
+                                    @item.Turn%
+                                </td>
+                                <td>
+                                    @item.Battery.ToString("F")
+                                </td>
+                                <td>
+                                    <input type="checkbox" asp-for="@item.Window" disabled="disabled">
+                                </td>
+                                <td>
+                                    <input type="checkbox" asp-for="@item.Locked" disabled="disabled">
+                                </td>
+                                <td>
+                                    @item.Error
+                                </td>
+                                <td>
+                                    <a asp-action="Delete" asp-route-id="@item.Addr">Odstranit</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <!-- /.table-responsive -->
+        </div>
+        <div class="box-footer clearfix">
+            <a class="btn btn-sm btn-info btn-flat pull-left" asp-action="Edit">Vložit nový ventil</a>
+        </div>
+    </div>
+</section>
+

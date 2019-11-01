@@ -1,0 +1,79 @@
+﻿@model IEnumerable<HeatApp.Models.TimeTable>
+
+@{
+    ViewData["Title"] = "Topné rozvrhy";
+}
+
+
+<section class="content">
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h3 class="box-title">Seznam rozvrhů</h3>
+        </div>
+        <!-- /.box-header -->
+        <div class="box-body">
+            <div class="table-responsive">
+                <table class="table no-margin">
+                    <thead>
+                        <tr>
+                            <th>
+                                Název
+                            </th>
+                            <th>
+                                Typ
+                            </th>
+                            <th>
+                                Udržovací
+                            </th>
+                            <th>
+                                Spánek
+                            </th>
+                            <th>
+                                Ekologická
+                            </th>
+                            <th>
+                                Komfort
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.Id">@item.Caption</a>
+                                </td>
+                                <td>
+                                    @item.Type
+                                </td>
+                                <td>
+                                    @(item.NoFrostTemp/2)
+                                </td>
+                                <td>
+                                    @(item.SleepTemp / 2)
+                                </td>
+                                <td>
+                                    @(item.EcoTemp / 2)
+                                </td>
+                                <td>
+                                    @(item.WarmTemp / 2)
+                                </td>
+                                <td>
+                                    <a asp-action="Delete" asp-route-id="@item.Id">Odstranit</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <!-- /.table-responsive -->
+        </div>
+        <div class="box-footer clearfix">
+            <a class="btn btn-sm btn-info btn-flat pull-left" asp-action="Create">Vytvořit nový</a>
+        </div>
+    </div>
+</section>
+

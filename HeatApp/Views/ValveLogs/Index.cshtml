@@ -1,0 +1,126 @@
+﻿@model IEnumerable<HeatApp.Models.ValveLog>
+
+@{
+    ViewData["Title"] = "Log stavu ventilů";
+}
+
+@section Styles
+    {
+    <link rel="stylesheet" href="~/lib/datatables/datatables.min.css" />
+    <link rel="stylesheet" href="~/lib/datatables/dataTables.bootstrap.min.css" />
+}
+<section class="content">
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h3 class="box-title">@ViewData["Title"]</h3>
+        </div>
+        <!-- /.box-header -->
+        <div class="box-body">
+            <div class="table-responsive">
+                <table id="valveLog" class="table no-margin">
+                    <thead>
+                        <tr>
+                            <th>
+                                Adresa ventilu
+                            </th>
+                            <th>
+                                Čas
+                            </th>
+                            <th>
+                                Automatický režim
+                            </th>
+                            <th>
+                                Aktuální teplota
+                            </th>
+                            <th>
+                                Nastavená teplota
+                            </th>
+                            <th>
+                                Otevření ventilu
+                            </th>
+                            <th>
+                                Okno
+                            </th>
+                            <th>
+                                Baterie
+                            </th>
+                            <th>
+                                Zámek
+                            </th>
+                            <th>
+                                Chyba
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+
+    <script src="~/lib/datatables/datatables.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#valveLog').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "filter": false,
+                "orderMulti": false,
+                "ordering": false,
+                "ajax": {
+                    "url": "/ValveLogs/LoadData",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "pageLength": 50,
+                "columns": [
+                    { "data": "addr", "name": "Addr", "autoWidth": true },
+                    { "data": "time", "name": "Time", "autoWidth": true },
+                    {
+                        "data": "mode", "name": "mode", "autoWidth": true, "render": function (data, type, full, meta) {
+                            return data ? '<input type="checkbox" disabled checked/>' : ' <input type="checkbox" disabled />';
+                        }
+                    },
+                    { "data": "actual", "name": "Actual", "autoWidth": true },
+                    { "data": "wanted", "name": "Wanted", "autoWidth": true },
+                    { "data": "turn", "name": "Turn", "autoWidth": true },
+                    {
+                        "data": "window", "name": "Window", "autoWidth": true, "render": function (data, type, full, meta) {
+                            return data ? '<input type="checkbox" disabled checked/>' : ' <input type="checkbox" disabled />';
+                        }
+                    },
+                    { "data": "battery", "name": "Battery", "autoWidth": true },
+                    {
+                        "data": "locked", "name": "Locked", "autoWidth": true, "render": function (data, type, full, meta) {
+                            return data ? '<input type="checkbox" disabled checked/>' : ' <input type="checkbox" disabled />';} },
+                    { "data": "error", "name": "Error", "autoWidth": true }
+                ],
+                "language": {
+                    "sEmptyTable": "Tabulka neobsahuje žádná data",
+                    "sInfo": "Zobrazuji _START_ až _END_ z celkem _TOTAL_ záznamů",
+                    "sInfoEmpty": "Zobrazuji 0 až 0 z 0 záznamů",
+                    "sInfoFiltered": "(filtrováno z celkem _MAX_ záznamů)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": " ",
+                    "sLengthMenu": "Zobraz záznamů _MENU_",
+                    "sLoadingRecords": "Načítám...",
+                    "sProcessing": "Provádím...",
+                    "sSearch": "Hledat:",
+                    "sZeroRecords": "Žádné záznamy nebyly nalezeny",
+                    "oPaginate": {
+                        "sFirst": "První",
+                        "sLast": "Poslední",
+                        "sNext": "Další",
+                        "sPrevious": "Předchozí"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": aktivujte pro řazení sloupce vzestupně",
+                        "sSortDescending": ": aktivujte pro řazení sloupce sestupně"
+                    }
+                }
+            });
+        });
+    </script>
+}

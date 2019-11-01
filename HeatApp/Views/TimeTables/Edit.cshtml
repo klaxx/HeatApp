@@ -1,0 +1,347 @@
+﻿@model HeatApp.Models.TimeTable
+@{
+    if (Model.Id == 0)
+    {
+        ViewData["Title"] = "Nový rozvrh";
+    }
+    else
+    {
+        ViewData["Title"] = "Úprava rozvrhu";
+    }
+}
+
+@section Styles{
+    <link rel="stylesheet" href="~/css/funkyRadio.css" />
+    <link rel="stylesheet" href="~/css/timetable.css" />
+}
+
+
+<section class="content">
+    <form asp-action="Edit" id="tts">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="box box-info">
+            <div class="box-header with-border">
+                <h3 class="box-title">@ViewData["Title"]</h3>
+            </div>
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label asp-for="Caption" class="control-label"></label>
+                            <input asp-for="Caption" class="form-control" />
+                            <span asp-validation-for="Caption" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Type" class="control-label"></label>
+                            <select asp-for="Type" asp-items="ViewBag.Types"></select>
+                            <span asp-validation-for="Type" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="col-md-3">
+                            <div class="funkyradio temperatureMode">
+                                <div class="funkyradio-default">
+                                    <input type="radio" name="g1" value="nofrost" id="nofrost">
+                                    <label for="nofrost" class="control-label">@Html.DisplayNameFor(model => model.NoFrostTemp)</label>
+                                </div>
+                                <div class="funkyradio-info">
+                                    <input type="radio" name="g1" value="sleep" id="sleep">
+                                    <label for="sleep" class="control-label">@Html.DisplayNameFor(model => model.SleepTemp)</label>
+                                </div>
+                                <div class="funkyradio-success">
+                                    <input type="radio" name="g1" value="eco" id="eco" checked="">
+                                    <label for="eco" class="control-label">@Html.DisplayNameFor(model => model.EcoTemp)</label>
+                                </div>
+                                <div class="funkyradio-warning">
+                                    <input type="radio" name="g1" value="warm" id="warm">
+                                    <label for="warm" class="control-label">@Html.DisplayNameFor(model => model.WarmTemp)</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-group tempSel" role="group">
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default btn-danger wrapHei minusButton">-</button>
+                                </span>
+                                <input type="text" asp-for="NoFrostTemp" class="form-control wrapHei textBoxTemp" value="@(Model.NoFrostTemp / 2)" />
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default btn-success wrapHei plusButton">+</button>
+                                </span>
+                            </div>
+                            <div class="input-group tempSel" role="group">
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default btn-danger wrapHei minusButton">-</button>
+                                </span>
+                                <input type="text" asp-for="SleepTemp" class="form-control wrapHei textBoxTemp" value="@(Model.SleepTemp / 2)" />
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default btn-success wrapHei plusButton">+</button>
+                                </span>
+                            </div>
+                            <div class="input-group tempSel" role="group">
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default btn-danger  wrapHei minusButton">-</button>
+                                </span>
+                                <input type="text" asp-for="EcoTemp" class="form-control wrapHei textBoxTemp" value="@(Model.EcoTemp / 2)" />
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default btn-success wrapHei plusButton">+</button>
+                                </span>
+                            </div>
+                            <div class="input-group tempSel" role="group">
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default btn-danger wrapHei minusButton">-</button>
+                                </span>
+                                <input type="text" asp-for="WarmTemp" class="form-control wrapHei textBoxTemp" value="@(Model.WarmTemp / 2)" />
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default btn-success wrapHei plusButton">+</button>
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="timetable-selector">
+                            <table class="timetable-table table-bordered table-condensed">
+                                <thead class="timetable-header"></thead>
+                                <tbody class="timetable-rows"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input asp-for="TimersSerialized" type="hidden" />
+                    <input type="submit" value="Uložit" class="btn btn-sm btn-warning btn-flat pull-left" />
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="form-group">
+        <a class="btn btn-sm btn-info btn-flat pull-left" asp-action="Index">Zpět na seznam</a>
+    </div>
+</section>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+    var interval = 15;
+    var columns = 24 * 60 / interval;
+    $("#tts").on("submit", function () {
+        var timers = [];
+        for (var d = 1; d < 8; d++) {
+            var day = [];
+            var $row = $('.timetable-table tbody tr:nth-child(' + d + ')');
+            var lastTemp = $row.find('td:nth-child(97)').attr('data-temp');
+            for (var i = 0; i < columns; i++) {
+                var mins = interval * i;
+                var colTemp = $row.find('td:nth-child(' + (i + 2) + ')').attr('data-temp');
+                if (day.length == 0 || colTemp !== lastTemp) {
+                    day.push({ temp: getTempFromClass(colTemp), time: mins });
+                    lastTemp = colTemp;
+                }
+            }
+            timers.push(day);
+        }
+        $('#TimersSerialized').val(JSON.stringify(timers));
+        var nft = $('#NoFrostTemp');
+        var st = $('#SleepTemp');
+        var et = $('#EcoTemp');
+        var wt = $('#WarmTemp');
+        nft.val(nft.val() * 2);
+        st.val(st.val() * 2);
+        et.val(et.val() * 2);
+        wt.val(wt.val() * 2);
+    });
+
+    //$('.saveTimetable').on('click', function () {
+
+    //    //$.nette.ajax({
+    //    //    url: { link saveTimetable! },
+    //    //    type: 'POST',
+    //    //    data: {
+    //    //        ttid: { $timetable['id'] },
+    //    //        nofrostTemp: $('input[name="nofrostTemp"]').val(),
+    //    //        sleepTemp: $('input[name="sleepTemp"]').val(),
+    //    //        ecoTemp: $('input[name="ecoTemp"]').val(),
+    //    //        warmTemp: $('input[name="warmTemp"]').val(),
+    //    //        timers: JSON.stringify(timers)
+    //    //    }
+    //    //});
+    //});
+
+
+    var selectStart = null;
+    var tempMode = "eco";
+    /**/
+    var timersString = '@Html.Raw(ViewBag.Timers)';
+    /**/
+    var timers = null;
+    if (timersString) {
+        timers = JSON.parse(timersString);
+    }
+
+    $('.temperatureMode input[type="radio"]').on('change', function (e) {
+        if (this.checked) {
+            tempMode = e.target.value;
+        }
+    });
+
+    $('.plusButton').on('click', function (e) {
+        var textBox = $(this).closest('div').find('input[type=text]');
+        var value = Math.round((Number(textBox.val()) + 0.5) * 100) / 100;
+        textBox.val(value);
+    });
+
+    $('.minusButton').on('click', function (e) {
+        var textBox = $(this).closest('div').find('input[type=text]');
+        var value = Math.round((Number(textBox.val()) - 0.5) * 100) / 100;
+        textBox.val(value);
+    });
+
+    function getDataTemp(datatemp) {
+        if (datatemp === null) { return "nofrost"; }
+        return datatemp;
+    }
+
+    function checkTemp() {
+        for (var i = 0; i < 7; i++) {
+            checkTempDay(i);
+        }
+    }
+
+    function checkTempDay(day) {
+        var cells = $('.timetable-rows td[data-day=' + day + ']');
+        var last = getDataTemp($(cells[cells.length - 1]).attr('data-temp'));
+        var changes = 0;
+        for (var i = 0; i < cells.length; i++) {
+            var cell = getDataTemp($(cells[i]).attr('data-temp'));
+            if (last !== cell) {
+                last = cell;
+                changes++;
+            }
+        }
+        var result = 'OK';
+        if (changes > 8) {
+            result = 'Error';
+        }
+        $('.timetable-rows tr:nth-child(' + (day + 1) + ') td:last-child').text(result);
+    }
+
+    function getTempClass(temp) {
+        switch (temp) {
+            case 1:
+                return "sleep";
+            case 2:
+                return "eco";
+            case 3:
+                return "warm";
+            default:
+                return "nofrost";
+        }
+    }
+
+    function getTempFromClass(tempClass) {
+        switch (tempClass) {
+            case 'sleep':
+                return 1;
+            case 'eco':
+                return 2;
+            case 'warm':
+                return 3;
+            default:
+                return 0;
+        }
+    }
+
+    $(document).ready(function () {
+        var $el = $('.timetable-header');
+        var hourColmarkup = [];
+        var days = ['Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota', 'Neděle'];
+
+        for (var d = 0; d < 8; d++) {
+            var colmarkup = [];
+            var ctemp = "nofrost";
+            var dayTimer = null;
+            if (timers !== null && timers.length > d && d > 0) {
+                dayTimer = timers[d].filter(function (dt) { return dt !== null; }).sort(function (a, b) { return (a.h * 60 + a.m) - (b.h * 60 + b.m); });
+                if (dayTimer.length > 0) {
+                    ctemp = getTempClass(dayTimer[dayTimer.length - 1].v);
+                }
+            }
+            for (var i = 0; i < columns; i++) {
+                var mins = interval * i % 60;
+                var date = new Date(2000, 0, 1, (i * interval) / 60, mins);
+                if (d === 0) {
+                    if (mins === 0) {
+                        hourColmarkup.push('<th colspan="' + 60 / interval + '" class="">' + ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2) + '</th>');
+                    }
+                }
+                else {
+                    if (dayTimer !== null && dayTimer.length > 0 && dayTimer[0].h === date.getHours() && dayTimer[0].m >= date.getMinutes() && dayTimer[0].m <= date.getMinutes() + 14) {
+                        ctemp = getTempClass(dayTimer[0].v);
+                        dayTimer.shift();
+                    }
+                    colmarkup.push('<td class="slot" data-selected="selected" data-temp="' + ctemp + '" data-day="' + (d - 1) + '"></td>');
+                }
+            }
+            if (d > 0) {
+                $('.timetable-rows').append('<tr><td class="">' + days[d - 1] + '</td>' + colmarkup.join() + '<td></td></tr>');
+            }
+        }
+
+        $('.timetable-header').append('<tr><td class="">Rozvrh</td>' + hourColmarkup.join() + '<td>Kontrola</td></tr>');
+
+        $('table').bind('selectstart', function (event) {
+            event.preventDefault();
+        });
+
+        function between(x, a, b) {
+            var min = Math.min.apply(Math, [a, b]),
+                max = Math.max.apply(Math, [a, b]);
+            return x >= min && x <= max;
+        };
+
+        function getActualCells(cell) {
+            var sy = selectStart.data('day');
+            var sx = selectStart.index();
+            var cy = $(cell).data('day');
+            var cx = $(cell).index();
+            return element.find('.slot').filter(function () {
+                var y = $(this).data('day');
+                var x = $(this).index();
+                return (between(x, sx, cx) && between(y, sy, cy));
+            });
+        }
+
+        var element = $('.timetable-selector');
+        element.on('mousedown touchstart', '.slot', function () {
+            if (selectStart === null) {
+                $('.slot[data-selected]').each(function () {
+                    var temp = $(this).attr('data-temp');
+                    $(this).attr('data-temptemp', temp);
+                });
+                selectStart = $(this);
+                $(this).attr('data-selecting', 'selecting').attr('data-temp', tempMode);
+            }
+        }).on('mouseover', '.slot', function () {
+            if (selectStart !== null) {
+                element.find('.slot[data-selecting]').removeAttr('data-selecting').removeAttr('data-temp');
+                var $slots = getActualCells(this);
+                $slots.attr('data-selecting', 'selecting').attr('data-temp', tempMode);
+                element.find('.slot').filter('[data-temptemp]:not([data-selecting])').each(function () {
+                    var temp = $(this).attr('data-temptemp');
+                    $(this).attr('data-temp', temp);  //.removeAttr('data-temptemp');
+                });
+            }
+        }).on('mouseup touchend', '.slot', function () {
+            if (selectStart !== null) {
+                $('.slot').filter('[data-temptemp]').removeAttr('data-temptemp');
+                var $slots = getActualCells(this).filter('[data-selecting]').attr('data-selected', 'selected').removeAttr('data-selecting');
+                selectStart = null;
+                checkTemp();
+            }
+        });
+
+    });</script>
+}

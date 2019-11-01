@@ -1,0 +1,178 @@
+﻿@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="~/lib/adminlte/css/AdminLTE.min.css" />
+    <link rel="stylesheet" href="~/lib/adminlte/css/skins/skin-blue.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    @RenderSection("Styles", required: false)
+</head>
+<body class="sidebar-mini skin-blue" style="height: auto; min-height: 100%;">
+    <div class="wrapper" style="height: auto; min-height: 100%;">
+        <header class="main-header">
+            <a href="~/" class="logo">
+                <span class="logo-mini fa fa-fire " style="font-size:1.8em"></span>
+                <span class="logo-lg"><b>Kotelna</b></span>
+            </a>
+            <nav class="navbar navbar-static-top">
+                <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+                    <span class="sr-only">Toggle navigation</span>
+                </a>
+                <div class="navbar-custom-menu">
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <ul class="nav navbar-nav">
+                            <li class="dropdown user user-menu">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                    <span class="">@UserManager.GetUserName(User)</span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li class="user-footer">
+                                        <div class="pull-right">
+                                            <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post" id="logoutForm">
+                                                <button type="submit" class="btn btn-sm btn-danger btn-flat pull-left">Odhlášení</button>
+                                            </form>
+                                        </div>
+                                        <div class="pull-left">
+                                            <a asp-area="Identity" asp-page="/Account/ChangePassword" class="btn btn-sm btn-warning btn-flat pull-left">Změna hesla</a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    }
+                    else
+                    {
+                        <ul class="nav navbar-nav">
+                            <li>
+                                <a asp-area="Identity" role="button" asp-page="/Account/Login">Přihlášení</a>
+                            </li>
+                        </ul>
+                    }
+                </div>
+                @*<nav class="navbar navbar-static-top">
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post" id="logoutForm">
+                                <div class="navbar-custom-menu">
+                                    <ul class="nav navbar-nav">
+                                        <li class="dropdown user user-menu">
+                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                                <span class="hidden-xs">@UserManager.GetUserName(User)</span>
+                                            </a>
+                                            <ul class="dropdown-menu">
+                                                <li class="user-footer">
+                                                    <div class="pull-right">
+                                                        <button type="submit" class="btn btn-sm btn-danger btn-flat pull-left">Odhlášení</button>
+                                                    </div>
+                                                    <div class="pull-left">
+                                                        <a asp-area="Identity" asp-page="/Account/ChangePassword" class="btn btn-sm btn-warning btn-flat pull-left">Změna hesla</a>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </form>
+                        }
+                        else
+                        {
+                            <div class="navbar-custom-menu">
+                                <ul class="nav navbar-nav">
+                                    <li>
+                                        <a asp-area="Identity" role="button" asp-page="/Account/Login">Přihlášení</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        }
+                    </nav>*@
+            </nav>
+        </header>
+        <aside class="main-sidebar">
+            <section class="sidebar" style="height: auto;">
+                <!-- sidebar menu: : style can be found in sidebar.less -->
+                <ul class="sidebar-menu tree" data-widget="tree">
+                    <li class="header">Topný systém</li>
+                    <li>
+                        <a href="/Valves">
+                            <i class="fa fa-hand-lizard-o"></i> <span>Ventily</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/Boiler">
+                            <i class="fa fa-fire"></i> <span>Kotel</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/TimeTables">
+                            <i class="fa fa-calendar"></i> <span>Rozvrhy</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/Queue">
+                            <i class="fa fa-envelope"></i> <span>Fronta</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/ValveLogs">
+                            <i class="fa fa-eye"></i><span>Log</span>
+                        </a>
+                    </li>
+                </ul>
+            </section>
+            <!-- /.sidebar -->
+        </aside>
+
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper" style="min-height: 960px;">
+            @RenderBody()
+        </div>
+
+        <footer class="main-footer">
+            <p>&copy; 2018 - Heating appliance</p>
+        </footer>
+    </div>
+
+
+
+    @*<nav class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">Topic</a>
+                </div>
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
+                        <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
+                    </ul>
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>*@
+
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="~/lib/adminlte/js/adminlte.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

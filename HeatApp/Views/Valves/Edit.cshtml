@@ -1,0 +1,236 @@
+﻿@model HeatApp.Models.ValveView
+
+@{
+    ViewData["Title"] = "Detail ventilu";
+}
+
+@section Styles{
+    <link rel="stylesheet" href="~/css/funkyRadio.css" />
+}
+
+<section class="content">
+    <form asp-action="Edit" id="tts">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row">
+            <div class="col-md-7">
+                <div class="box box-info">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">@ViewData["Title"]</h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="control-label">Adresa</label>
+                                    <input asp-for="Addr" readonly=@(Model.Addr > 0 ? "readonly" : "") class="form-control" />
+                                    <span asp-validation-for="Addr" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="control-label">Název</label>
+                                    <input asp-for="Caption" class="form-control" />
+                                    <span asp-validation-for="Caption" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="control-label">Režim ventilu</label>
+                                <div class="funkyradio">
+                                    <div class="funkyradio-default">
+                                        <input type="radio" asp-for="Auto" id="radio1" value="false" )>
+                                        <label for="radio1">Manuálně</label>
+                                    </div>
+                                    <div class="funkyradio-success">
+                                        <input type="radio" asp-for="Auto" id="radio2" value="true" )>
+                                        <label for="radio2">Automaticky</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="control-label">Řízení kotle</label>
+                                <div class="funkyradio">
+                                    <div class="funkyradio-default">
+                                        <input type="radio" id="radio3" value="false" asp-for="BoilerEnabled" />
+                                        <label for="radio3">Pouze regulace </label>
+                                    </div>
+                                    <div class="funkyradio-success">
+                                        <input type="radio" id="radio4" value="true" asp-for="BoilerEnabled" />
+                                        <label for="radio4">Spouštět kotel</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="control-label">Nastavení teploty</label>
+                                <div class="input-group" role="group">
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-default btn-danger minusButton">-</button>
+                                    </span>
+                                    <input type="text" asp-for="Wanted" class="form-control wrapHei textBoxTemp" />
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-default btn-success plusButton">+</button>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="control-label">Časový rozvrh</label>
+                                <div class="form-group">
+                                    <select asp-for="TimeTable" class="form-control" asp-items="ViewBag.TimeTables"></select>
+                                    <span asp-validation-for="TimeTable" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box-footer clearfix">
+                        <input type="submit" value="Uložit" class="btn btn-sm btn-warning btn-flat pull-left" />
+                    </div>
+                </div>
+            </div>
+            @if (Model.Addr > 0)
+            {
+                <div class="col-md-5">
+                    <div class="box box-info">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Nastavení ventilu</h3>
+                        </div>
+                        <div class="box-body">
+                        </div>
+                        <div class="box-footer clearfix">
+                            <a href="#" class="btn btn-sm btn-info btn-flat pull-left get-settings">Načíst</a>
+                            <input type="submit" value="Uložit" class="btn btn-sm btn-warning btn-flat pull-left" />
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </form>
+
+    @if (Model.Addr > 0)
+    {
+        <div class="row">
+            <div class="col-md-7">
+                <div class="box box-info">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Graf vývoje teploty</h3>
+                    </div>
+                    <div class="box-body">
+                        <div id="chartCont">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    <div class="row">
+        <a class="btn btn-sm btn-info btn-flat pull-left" asp-action="Index">Zpět na seznam</a>
+    </div>
+</section>
+
+
+@section Scripts {
+    @*@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}*@
+    <script src="~/lib/highcharts/highcharts.js"></script>
+
+    <script type="text/javascript">
+        function combine(time, data) {
+            var res = [];
+            for (var i in time) {
+                res.push([time[i], data[i]]);
+            }
+            return res;
+        }
+        $('.get-settings').on('click', function (e) {
+            $.ajax({
+                url: '/Valves/LoadSettings/@Model.Addr'
+            });
+        });
+        //$(document).ready(function () {
+            $.ajax({
+                url: '/Valves/GetSettings/@Model.Addr'
+            }).done(function (data) {
+                //console.log(data);
+            });
+            $.ajax({
+                url: '/Valves/GetValveLog/@Model.Addr'
+            }).done(function (data) {
+                var res = {};
+                res['turn'] = combine(data.time, data.turn);
+                res['measured'] = combine(data.time, data.measured);
+                res['wanted'] = combine(data.time, data.wanted);
+                Highcharts.setOptions({
+                    global: {
+                        timezoneOffset: -60
+                    }
+                });
+
+                Highcharts.chart('chartCont', {
+                    chart: {
+                        type: 'spline',
+                        alignTicks: false
+                    },
+                    tooltip: {
+                        formatter: function () {
+                            return '<b>' + this.series.name + '</b> ' + this.y + '<br/>' +
+                                Highcharts.dateFormat('%e.%m. %H:%M', new Date(this.x));
+                        }
+                    },
+                    data:data,
+                    title: {
+                        text: 'Průběh teploty'
+                    },
+                    xAxis: {
+                        type: 'datetime',
+                        title: {
+                            text: 'Čas'
+                        }
+                    },
+                    yAxis: [{
+                        title: {
+                            text: 'Teplota °C',
+                        }
+                    }, {
+                        title: {
+                            text: 'Otevření ventilu %',
+                        },
+                        opposite: true,
+                        max: 80,
+                        min: 20
+                    }],
+                    plotOptions: {
+                        spline: {
+
+                        }
+                    },
+                    series: [{
+                        name: 'Naměřená teplota',
+                        data: res.measured
+                    },
+                    {
+                        name: 'Požadovaná teplota',
+                        data: res.wanted
+                    },
+                    {
+                        name: 'Otevření ventilu',
+                        data: res.turn,
+                        yAxis: 1
+                    }]
+                });
+            });
+        //});
+
+
+        $('.plusButton').on('click', function (e) {
+            var textBox = $(this).closest('div').find('input[type=text]');
+            var value = Math.round((Number(textBox.val().replace(",", ".")) + 0.5) * 100) / 100;
+            textBox.val(value.toString().replace(".", ","));
+        });
+
+        $('.minusButton').on('click', function (e) {
+            var textBox = $(this).closest('div').find('input[type=text]');
+            var value = Math.round((Number(textBox.val().replace(",", ".")) - 0.5) * 100) / 100;
+            textBox.val(value.toString().replace(".", ","));
+        });
+    </script>
+
+}

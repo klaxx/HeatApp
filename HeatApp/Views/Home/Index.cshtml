@@ -1,0 +1,66 @@
+﻿@{
+    ViewData["Title"] = "Kotelna";
+}
+<section class="content-header">
+    <h1>
+        @ViewData["Title"]
+        <small>Ovládací panel</small>
+    </h1>
+</section>
+
+<section class="content">
+    <div class="row">
+        <div class="col-lg-3 col-xs-6">
+            <div class="small-box @(ViewBag.Boiler == "termostat" ? "bg-gray": ViewBag.Boiler == "on" ? "bg-green" : "bg-aqua" ) ">
+                <div class="inner">
+                    <h3><i class="fa @(ViewBag.Boiler == "termostat" ? "fa-remove": ViewBag.Boiler == "on" ? "fa-fire" : "fa-snowflake-o" )"></i></h3>
+
+                    <p>Kotel</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-heartbeat"></i>
+                </div>
+                <a href="/Boiler" class="small-box-footer">Více <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <div class="col-lg-3 col-xs-6">
+            <div class="small-box @(@ViewBag.Requests == 0 ? "bg-green" : (ViewBag.Requests == ViewBag.Requestable ? "bg-red" : "bg-yellow"))">
+                <div class="inner">
+                    <h3>@ViewBag.Requests</h3>
+
+                    <p>Požadavků na topení</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-thermometer-full"></i>
+                </div>
+                <a href="/Valves" class="small-box-footer">Více <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <div class="col-lg-3 col-xs-6">
+            <div class="small-box @(@ViewBag.ValvesOnline == 0 ? "bg-red" : (ViewBag.ValvesOnline == ViewBag.Valves ? "bg-green" : "bg-yellow")) ">
+                <div class="inner">
+                    <h3>@((ViewBag.Valves != 0 ? (ViewBag.ValvesOnline / ViewBag.Valves * 100) : 0))<sup style="font-size: 20px">%</sup></h3>
+
+                    <p>Ventily online @ViewBag.ValvesOnline/@ViewBag.Valves</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-hand-lizard-o"></i>
+                </div>
+                <a href="/ValveLogs" class="small-box-footer">Více <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <div class="col-lg-3 col-xs-6">
+            <div class="small-box @(ViewBag.Queue > 0 ? "bg-red" : "bg-green")  ">
+                <div class="inner">
+                    <h3>@(ViewBag.Queue)</h3>
+
+                    <p>Fronta zpráv</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-envelope"></i>
+                </div>
+                <a href="/Queue" class="small-box-footer">Více <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
