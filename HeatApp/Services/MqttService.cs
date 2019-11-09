@@ -54,7 +54,7 @@ namespace HeatApp.Services
             string password = configuration.GetSection("MqttClient").GetValue<string>("Password");
 
             mqttOptions = new MqttClientOptionsBuilder()
-                .WithClientId("HomeServer")
+                .WithClientId(mqttClientId)
                 .WithTcpServer(mqttServer, mqttPort > 0 ? mqttPort : 1883)
                 .WithCredentials(user, password)
                 .Build();

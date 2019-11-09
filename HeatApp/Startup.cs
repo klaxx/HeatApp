@@ -76,11 +76,11 @@ namespace HeatApp
                 .AddDefaultTokenProviders();
 
             services.AddScoped<CommandService>();
-            Configuration.GetSection("MqttClient").GetValue<bool>("UseMqttClient");
+            if (Configuration.GetSection("MqttClient").GetValue<bool>("UseMqttClient"))
             {
                 services.AddHostedService<MqttService>();
             }
-            Configuration.GetSection("Serial").GetValue<bool>("UseSerial");
+            if (Configuration.GetSection("Serial").GetValue<bool>("UseSerial"))
             {
                 services.AddHostedService<SerialReadService>();
             }
