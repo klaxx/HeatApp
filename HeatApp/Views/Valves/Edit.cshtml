@@ -214,7 +214,8 @@
             Highcharts.chart('chartCont', {
                 chart: {
                     type: 'spline',
-                    alignTicks: false
+                    alignTicks: false,
+                    zoomType: "xy"
                 },
                 tooltip: {
                     formatter: function () {
@@ -224,7 +225,7 @@
                 },
                 data:data,
                 title: {
-                    text: 'Průběh teploty'
+                    text: undefined
                 },
                 xAxis: {
                     type: 'datetime',
