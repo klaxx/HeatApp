@@ -50,12 +50,19 @@ namespace HeatApp.Services
             string mqttClientId = configuration.GetSection("MqttClient").GetValue<string>("ClientId");
             string user = configuration.GetSection("MqttClient").GetValue<string>("User");
             string password = configuration.GetSection("MqttClient").GetValue<string>("Password");
-
-            mqttOptions = new MqttClientOptionsBuilder()
+            MqttClientOptionsBuilder mqttClientOptionsBuilder = new MqttClientOptionsBuilder()
                 .WithClientId(mqttClientId)
-                .WithTcpServer(mqttServer, mqttPort > 0 ? mqttPort : 1883)
-                .WithCredentials(user, password)
-                .Build();
+                .WithTcpServer(mqttServer, mqttPort > 0 ? mqttPort : 1883);
+            if (!string.IsNullOrEmpty(user))
+            {
+                mqttClientOptionsBuilder.WithCredentials(user, password);
+            }
+            mqttOptions = mqttClientOptionsBuilder.Build();
+            //mqttOptions = new MqttClientOptionsBuilder()
+            //    .WithClientId(mqttClientId)
+            //    .WithTcpServer(mqttServer, mqttPort > 0 ? mqttPort : 1883)
+            //    .WithCredentials(user, password)
+            //    .Build();
             client = new MqttFactory().CreateMqttClient();
             client.UseDisconnectedHandler(e =>
             {
