@@ -22,7 +22,7 @@ namespace HeatApp.Models
             this.Actual = sm.Temp;
             this.Battery = sm.Battery;
             this.Error = sm.Error;
-            this.Time = DateTimeOffset.FromUnixTimeSeconds(sm.LastContact).DateTime;
+            this.Time = DateTimeOffset.FromUnixTimeSeconds(sm.LastContact).DateTime.ToLocalTime();
         }
 
 

@@ -44,7 +44,6 @@ namespace HeatApp.Models
         public decimal Battery { get; set; }
         public bool Window { get; set; }
         public int Turn { get; set; }
-        public bool Locked { get; set; }
         public int Error { get; set; }
         public string TimeTableCaption { get; set; }
         public bool OnLine

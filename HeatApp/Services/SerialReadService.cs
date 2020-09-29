@@ -292,23 +292,16 @@ namespace HeatApp.Services
 
         private static int GetWeight(string item)
         {
-            switch (item)
+            return item switch
             {
-                case "D":
-                    return 10;
-                case "S":
-                    return 4;
-                case "W":
-                    return 4;
-                case "G":
-                    return 2;
-                case "R":
-                    return 2;
-                case "T":
-                    return 2;
-                default:
-                    return 10;
-            }
+                "D" => 10,
+                "S" => 4,
+                "W" => 4,
+                "G" => 2,
+                "R" => 2,
+                "T" => 2,
+                _ => 10,
+            };
         }
     }
 }

@@ -23,7 +23,6 @@ namespace HeatApp.Controllers
             this.db = db;
         }
 
-        // GET: Valves
         public async Task<IActionResult> Index()
         {
             List<ValveView> vlog = await (from v in db.Valves
@@ -34,7 +33,6 @@ namespace HeatApp.Controllers
                                           join tt in db.Timetables on v.TimeTable equals tt.Id into ttjoin
                                           from tt in ttjoin.DefaultIfEmpty()
                                           select new ValveView(v, vl, tt)).ToListAsync();
-            //var vlog = await commandService.GetValveStates();
             return View(vlog);
         }
 
@@ -63,7 +61,7 @@ namespace HeatApp.Controllers
             if (id != null)
             {
                 var log = await db.ValveLog.Where(l => l.Addr == id.Value && l.Time.AddDays(2) > DateTime.Now).Select(s => new { s.Time, s.Wanted, s.Turn, s.Actual }).ToListAsync();
-                return new { Time = log.Select(t => new DateTimeOffset(t.Time).ToUnixTimeMilliseconds()), Measured = log.Select(m => m.Actual), Wanted = log.Select(w => w.Wanted), Turn = log.Select(t => t.Turn) };
+                return new { Time = log.Select(t => DateTimeToUnixTimestamp(t.Time)), Measured = log.Select(m => m.Actual), Wanted = log.Select(w => w.Wanted), Turn = log.Select(t => t.Turn) };
             }
             return null;
         }
@@ -178,6 +176,14 @@ namespace HeatApp.Controllers
         private bool ValveExists(int id)
         {
             return db.Valves.Any(e => e.Addr == id);
+        }
+
+        private static double DateTimeToUnixTimestamp(DateTime dateTime)
+        {
+            DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0).ToLocalTime();
+            TimeSpan span = (dateTime - epoch);
+            return span.TotalMilliseconds;
+
         }
     }
 }

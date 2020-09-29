@@ -6,17 +6,26 @@ using System.Threading.Tasks;
 using HeatApp.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using System.Globalization;
 
 namespace HeatApp.Services
 {
     public class CommandService
     {
         private readonly HeatAppContext db;
+        //private readonly IServiceScopeFactory scopeFactory;
+        private readonly MqttClient mqttClient;
+        private readonly IConfiguration configuration;
         private static readonly Dictionary<string, MemoryRecord> memoryLayout = MemoryLayout.GetLayout();
 
-        public CommandService(HeatAppContext db)
+        public CommandService(HeatAppContext db, MqttClient mqttClient, IConfiguration configuration)
         {
             this.db = db;
+            this.mqttClient = mqttClient;
+            //this.scopeFactory = scopeFactory;
+            this.configuration = configuration;
         }
 
         public int GetQueueCount()
@@ -71,30 +80,44 @@ namespace HeatApp.Services
         public void UpdateValve(ValveView valveView)
         {
             var lastLog = db.ValveLog.Where(v => v.Addr == valveView.Addr).OrderByDescending(v => v.Time).FirstOrDefault();
-            List<string> commands = new List<string>();
-            if (lastLog == null)
+            if (SerialEnabled)
             {
-                commands.Add("A" + Convert.ToInt32(valveView.Wanted * 2).ToString("x02"));
-                commands.Add(valveView.Auto ? "M01" : "M00");
-            }
-            else
-            {
-                if (lastLog.Auto != valveView.Auto)
+                List<string> commands = new List<string>();
+                if (lastLog == null || lastLog.Auto != valveView.Auto)
                 {
                     commands.Add(valveView.Auto ? "M01" : "M00");
                 }
-                if (lastLog.Wanted != valveView.Wanted)
+                if (lastLog == null || lastLog.Wanted != valveView.Wanted)
                 {
                     commands.Add("A" + Convert.ToInt32(valveView.Wanted * 2).ToString("x02"));
                 }
-                if (lastLog.Locked != valveView.Locked)
+                if (lastLog == null || lastLog.Locked != valveView.Locked)
                 {
                     commands.Add(valveView.Locked ? "L01" : "L00");
                 }
+                if (commands.Count > 0)
+                {
+                    SendCommands(commands, valveView.Addr);
+                }
             }
-            if (commands.Count > 0)
+            if (ValvesMqtt)
             {
-                SendCommands(commands, valveView.Addr);
+                //using (IServiceScope scope = scopeFactory.CreateScope())
+                {
+                    //MqttClient mqtt = scope.ServiceProvider.GetRequiredService<MqttClient>();
+                    if (lastLog == null || lastLog.Auto != valveView.Auto)
+                    {
+                        mqttClient.SendValveMessage(valveView.Addr, "mode", valveView.Auto.ToString().ToLower());
+                    }
+                    if (lastLog == null || lastLog.Wanted != valveView.Wanted)
+                    {
+                        mqttClient.SendValveMessage(valveView.Addr, "requested_temp", valveView.Wanted.ToString(CultureInfo.GetCultureInfo("en-US")));
+                    }
+                    if (lastLog == null || lastLog.Locked != valveView.Locked)
+                    {
+                        mqttClient.SendValveMessage(valveView.Addr, "lock", valveView.Locked.ToString().ToLower());
+                    }
+                }
             }
         }
 
@@ -154,13 +177,15 @@ namespace HeatApp.Services
                 return;
             }
             //teploty
-            List<string> commands = new List<string>();
-            commands.Add("S" + memoryLayout["temperature0"].idx.ToString("x02") + timetable.NoFrostTemp.ToString("x02"));
-            commands.Add("S" + memoryLayout["temperature1"].idx.ToString("x02") + timetable.SleepTemp.ToString("x02"));
-            commands.Add("S" + memoryLayout["temperature2"].idx.ToString("x02") + timetable.EcoTemp.ToString("x02"));
-            commands.Add("S" + memoryLayout["temperature3"].idx.ToString("x02") + timetable.WarmTemp.ToString("x02"));
-            //mod - nastavení casu na celý týden
-            commands.Add("S" + memoryLayout["timer_mode"].idx.ToString("x02") + (1).ToString("x02"));
+            List<string> commands = new List<string>
+            {
+                "S" + memoryLayout["temperature0"].idx.ToString("x02") + timetable.NoFrostTemp.ToString("x02"),
+                "S" + memoryLayout["temperature1"].idx.ToString("x02") + timetable.SleepTemp.ToString("x02"),
+                "S" + memoryLayout["temperature2"].idx.ToString("x02") + timetable.EcoTemp.ToString("x02"),
+                "S" + memoryLayout["temperature3"].idx.ToString("x02") + timetable.WarmTemp.ToString("x02"),
+                //mod - nastavení casu na celý týden
+                "S" + memoryLayout["timer_mode"].idx.ToString("x02") + (1).ToString("x02")
+            };
             foreach (var row in timetable.Timers)
             {
                 var d = row.Idx >> 4;
@@ -193,5 +218,22 @@ namespace HeatApp.Services
                 return memoryLayout;
             }
         }
+
+        private bool ValvesMqtt
+        {
+            get
+            {
+                return configuration.GetSection("MqttClient").GetValue<bool>("ValvesEnabled");
+            }
+        }
+
+        private bool SerialEnabled
+        {
+            get
+            {
+                return configuration.GetSection("Serial").GetValue<bool>("UseSerial");
+            }
+        }
+
     }
 }

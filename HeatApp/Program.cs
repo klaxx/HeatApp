@@ -26,7 +26,7 @@ namespace HeatApp
             //    o.ListenAnyIP(5000); // default http pipeline
             //})
             //.UseSetting("https_port", "443")
-            .UseIISIntegration()
+            //.UseIISIntegration()
             .UseStartup<Startup>();
     }
 }
